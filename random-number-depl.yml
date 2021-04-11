@@ -19,6 +19,7 @@ spec:
               imagePullPolicy: Never
               env:
               - name: randomservice.name.address
-                value: http://10.97.233.67:80/random-name
+                value: http://random-name-service.default.svc.cluster.local/random-name
+#                value: http://10.97.233.67:80/random-name
               ports:
               - containerPort: 8082

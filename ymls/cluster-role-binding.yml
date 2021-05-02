@@ -5,8 +5,8 @@ metadata:
   name: migration-binding
 subjects:
 - kind: ServiceAccount
-  name: migration # Name is case sensitive
-  namespace: default
+  name: cluster-reader # Name is case sensitive
+  namespace: random
 - kind: User
   name: system:bootstrap:07401b # Name is case sensitive
 roleRef:

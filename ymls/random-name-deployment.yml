@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: random-name-deployment
+    namespace: random
+spec:
+    replicas: 2
+    selector:
+        matchLabels:
+            app: random-name
+    template:
+        metadata:
+            name: random-name-pod
+            labels:
+                app: random-name
+        spec:
+            containers:
+            - name: random-name-container
+              image: kulyndar/random:name
+              resources:
+                requests:
+                    cpu: "250m"
+                    memory: "128M"
+                limits:
+                    cpu: "500m"
+                    memory: "256M"
+              livenessProbe:
+                httpGet:
+                    path: /random-name/health
+                    port: 8081
+                initialDelaySeconds: 3
+                periodSeconds: 10
+                failureThreshold: 3
+              readinessProbe:
+                httpGet:
+                    path: /random-name/health
+                    port: 8081
+                initialDelaySeconds: 0
+                periodSeconds: 2
+              ports:
+              - containerPort: 8081

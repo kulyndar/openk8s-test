@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
     name: random-number-service
+    namespace: random
 spec:
     selector: 
         app: random-number

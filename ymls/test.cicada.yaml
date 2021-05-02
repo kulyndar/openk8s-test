@@ -1,0 +1,29 @@
+tests:
+  - name: test-random-name
+    runner: rest-runner
+    asserts:
+      - type: StatusCode
+        params:
+          method: GET
+          actionParams:
+            url: http://random-name-service.random.svc.cluster.local/random-name/name
+          expected: 200
+  - name: test-random-number
+    runner: rest-runner
+    asserts:
+      - type: StatusCode
+        params:
+          method: GET
+          actionParams:
+            url: http://random-number-service.random.svc.cluster.local/random-number/number
+          expected: 200
+  - name: test-random-integration
+    runner: rest-runner
+    asserts:
+      - type: JSON
+        params:
+          method: GET
+          actionParams:
+            url: http://random-number-service.random.svc.cluster.local/random-number/number
+          expected: 
+            name: Philip

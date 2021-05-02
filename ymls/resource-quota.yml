@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+    name: random-resource-quota
+    namespace: random
+spec:
+    hard:
+        limits.memory: "1300M"
+        services.loadbalancers: "1"

@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prom-storage-pvc
+  labels:
+    vol: prom-storage
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+      
+---
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: prom-config
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      external_labels:
+        monitor: 'codelab-monitor'
+    # Scraping Prometheus itself
+    scrape_configs:
+    - job_name: 'prometheus'
+      scrape_interval: 5s
+      static_configs:
+      - targets: ['localhost:9090']
+    - job_name: 'kubernetes-service-endpoints'
+      kubernetes_sd_configs:
+      - role: endpoints
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_service_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_service_name]
+        action: replace
+        target_label: kubernetes_name
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  labels:
+    env: metrics
+spec:
+  selector:
+    matchLabels:
+      env: metrics
+  template:
+    metadata:
+      name: prometheus
+      labels:
+        env: metrics
+    spec:
+      containers:
+      - image: prom/prometheus
+        name: prom
+        args:
+        - '--config.file=/prometheus.yml'
+        - --storage.tsdb.path='prometheus_data/
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - name: prometheus-persistent-storage-store
+          mountPath: prometheus_data/
+        - name: prometheus-script
+          mountPath: /prometheus.yml
+          subPath: prometheus.yml  
+      volumes:
+      - name: prometheus-persistent-storage-store
+        persistentVolumeClaim:
+          claimName: prom-storage-pvc
+      - name: prometheus-script
+        configMap:
+          name: prom-config
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-svc
+spec:
+  selector:
+    env: metrics
+  type: NodePort
+  ports:
+  - port: 9090
+    targetPort: 9090
+    nodePort: 30021
